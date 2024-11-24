@@ -1,6 +1,9 @@
 // chat.js
 
-const socket = new WebSocket("wss://your-vercel-url.com"); // Replace with your actual Vercel URL
+const socket = new WebSocket(
+  "wss://https://real-time-chat-qb7i5by9n-utkarshshanu712s-projects.vercel.app"
+); // Replace with your actual Vercel URL
+
 const messageInput = document.getElementById("messageInput");
 const sendButton = document.getElementById("sendButton");
 const messagesContainer = document.getElementById("messagesContainer");
