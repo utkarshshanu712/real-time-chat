@@ -1,27 +1,24 @@
 // chat.js
 
-const socket = new WebSocket(
-  "wss://real-time-chat-foa3ez6rv-utkarshshanu712s-projects.vercel.app"
-);
- // Replace with your actual Vercel URL
+const socket = new WebSocket("wss://your-vercel-url.com"); // Replace with your actual Vercel URL
 const messageInput = document.getElementById("messageInput");
 const sendButton = document.getElementById("sendButton");
 const messagesContainer = document.getElementById("messagesContainer");
 
+// Send message on button click
 sendButton.addEventListener("click", () => {
   const messageText = messageInput.value.trim();
   if (messageText) {
     const messageData = {
-      text: messageText,
-      status: "sent",
-      timestamp: new Date().toLocaleTimeString(),
+      text: messageText, // Only the text is sent, broadcast to everyone
     };
-    socket.send(JSON.stringify(messageData));
+    socket.send(JSON.stringify(messageData)); // Send the message
     messageInput.value = ""; // Clear input field
     addMessageToChat(messageData, "sent");
   }
 });
 
+// Listen for messages from the server
 socket.addEventListener("message", (event) => {
   const messageData = JSON.parse(event.data);
   if (messageData.type === "system") {
@@ -36,7 +33,7 @@ function addMessageToChat(messageData, type) {
   const messageElement = document.createElement("div");
   messageElement.classList.add("message", type);
   messageElement.innerHTML = `
-        <div class="text">${messageData.text}</div>
+        <div class="text">${messageData.message}</div>
         <div class="timestamp">${messageData.timestamp}</div>
         <div class="status">${messageData.status}</div>
     `;

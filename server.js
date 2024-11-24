@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
@@ -8,40 +7,45 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Serve static files (index.html, styles.css, chat.js) from /public
+// Store connected clients by their unique ID
+const clients = {};
+
 app.use(express.static(path.join(__dirname, "public")));
 
-// WebSocket connection handling
 wss.on("connection", (ws) => {
-  const userName = `User_${Math.floor(Math.random() * 1000)}`;
+  // Generate a unique user ID for each client
+  const userId = `User_${Math.floor(Math.random() * 10000)}`;
+  clients[userId] = ws;
 
-  ws.send(JSON.stringify({ type: "system", message: `Welcome ${userName}!` }));
+  // Send a welcome message
+  ws.send(JSON.stringify({ type: "system", message: `Welcome ${userId}!` }));
 
+  // Handle incoming messages
   ws.on("message", (message) => {
-    console.log(`${userName}: ${message}`);
     const messageData = JSON.parse(message);
 
-    // Broadcast message along with the sender and delivery status
-    const response = {
-      userName: userName,
-      message: messageData.text,
-      status: "sent", // initially sent, can be updated later
-      timestamp: new Date().toLocaleTimeString(),
-    };
-
-    wss.clients.forEach((client) => {
-      if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(response));
+    // Broadcast message to all users
+    Object.keys(clients).forEach((clientId) => {
+      if (clientId !== userId) {
+        // Don't send the message back to the sender
+        const response = {
+          senderId: userId,
+          message: messageData.text,
+          status: "sent",
+          timestamp: new Date().toLocaleTimeString(),
+        };
+        clients[clientId].send(JSON.stringify(response));
       }
     });
   });
 
+  // Clean up when the user disconnects
   ws.on("close", () => {
-    console.log(`${userName} disconnected`);
+    delete clients[userId];
   });
 });
 
-// Serve the index.html file on the root route
+// Serve static files
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
