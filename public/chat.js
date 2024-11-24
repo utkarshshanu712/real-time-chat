@@ -1,18 +1,45 @@
-// /public/chat.js
+// chat.js
+
 const socket = new WebSocket(
   "wss://real-time-chat-foa3ez6rv-utkarshshanu712s-projects.vercel.app"
 );
- // Adjust URL for deployment
+ // Replace with your actual Vercel URL
+const messageInput = document.getElementById("messageInput");
+const sendButton = document.getElementById("sendButton");
+const messagesContainer = document.getElementById("messagesContainer");
 
-socket.onmessage = function (event) {
-  const message = event.data;
-  const chatBox = document.getElementById("chat-box");
-  chatBox.innerHTML += `<div>${message}</div>`;
-};
+sendButton.addEventListener("click", () => {
+  const messageText = messageInput.value.trim();
+  if (messageText) {
+    const messageData = {
+      text: messageText,
+      status: "sent",
+      timestamp: new Date().toLocaleTimeString(),
+    };
+    socket.send(JSON.stringify(messageData));
+    messageInput.value = ""; // Clear input field
+    addMessageToChat(messageData, "sent");
+  }
+});
 
-function sendMessage() {
-  const messageInput = document.getElementById("message");
-  const message = messageInput.value;
-  socket.send(message);
-  messageInput.value = "";
+socket.addEventListener("message", (event) => {
+  const messageData = JSON.parse(event.data);
+  if (messageData.type === "system") {
+    addMessageToChat(messageData, "system");
+  } else {
+    addMessageToChat(messageData, "received");
+  }
+});
+
+// Display messages in the chat
+function addMessageToChat(messageData, type) {
+  const messageElement = document.createElement("div");
+  messageElement.classList.add("message", type);
+  messageElement.innerHTML = `
+        <div class="text">${messageData.text}</div>
+        <div class="timestamp">${messageData.timestamp}</div>
+        <div class="status">${messageData.status}</div>
+    `;
+  messagesContainer.appendChild(messageElement);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight; // Scroll to the bottom
 }
