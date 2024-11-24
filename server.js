@@ -1,35 +1,29 @@
-const WebSocket = require("ws");
+// server.js
 const express = require("express");
-const app = express();
-const port = process.env.PORT || 3000;
+const http = require("http");
+const WebSocket = require("ws");
 
-// Serve static files (like frontend HTML, CSS, JS)
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+// Serve static files from /public
 app.use(express.static("public"));
 
-// WebSocket server to manage signaling
-const wss = new WebSocket.Server({ noServer: true });
-
+// WebSocket connection handling
 wss.on("connection", (ws) => {
-  console.log("User connected");
-
-  // Relay messages between connected users
   ws.on("message", (message) => {
-    console.log("Received: " + message);
-    ws.send(message); // Echo the message to the other user
-  });
-
-  ws.on("close", () => {
-    console.log("User disconnected");
+    // Broadcast incoming message to all clients
+    wss.clients.forEach((client) => {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
   });
 });
 
-// Handle WebSocket connection upgrade
-app.server = app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
-
-app.server.on("upgrade", (request, socket, head) => {
-  wss.handleUpgrade(request, socket, head, (ws) => {
-    wss.emit("connection", ws, request);
-  });
+// Start the server
+const port = process.env.PORT || 3000;
+server.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
 });

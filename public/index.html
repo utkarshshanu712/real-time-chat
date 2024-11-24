@@ -1,3 +1,4 @@
+<!-- /public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,14 +8,10 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h2>Real-Time Peer-to-Peer Chat</h2>
-    <div class="container">
-        <input type="text" id="code" placeholder="Enter code to connect" />
-        <button id="connectBtn">Connect</button>
-        <div id="messages"></div>
-        <input type="text" id="messageInput" placeholder="Type a message..." />
-        <button id="sendBtn">Send</button>
-    </div>
+    <h1>Real-Time Chat</h1>
+    <div id="chat-box"></div>
+    <input type="text" id="message" placeholder="Type your message">
+    <button onclick="sendMessage()">Send</button>
 
     <script src="chat.js"></script>
 </body>
