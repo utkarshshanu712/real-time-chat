@@ -1,14 +1,14 @@
-// server.js
 const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Serve static files from /public
-app.use(express.static("public"));
+// Serve static files (index.html, styles.css, chat.js) from /public
+app.use(express.static(path.join(__dirname, "public")));
 
 // WebSocket connection handling
 wss.on("connection", (ws) => {
@@ -20,6 +20,11 @@ wss.on("connection", (ws) => {
       }
     });
   });
+});
+
+// Serve the index.html file when accessing the root ("/")
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // Start the server

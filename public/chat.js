@@ -1,5 +1,8 @@
 // /public/chat.js
-const socket = new WebSocket("ws://localhost:3000"); // Adjust URL for deployment
+const socket = new WebSocket(
+  "wss://real-time-chat-foa3ez6rv-utkarshshanu712s-projects.vercel.app"
+);
+ // Adjust URL for deployment
 
 socket.onmessage = function (event) {
   const message = event.data;
